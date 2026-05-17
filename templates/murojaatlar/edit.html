@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Tahrirlash #{{ murojaat.pk }}{% endblock %}
+{% block page_title %}Murojaat #{{ murojaat.pk }} — Yangilash{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Holatni yangilash</h1>
+    <p class="subtitle">{{ murojaat.shaxs.fio }} · #{{ murojaat.pk }}</p>
+  </div>
+  <a href="{% url 'murojaat_detail' murojaat.pk %}" class="btn btn-ghost btn-sm">
+    <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+    Orqaga
+  </a>
+</div>
+
+<div class="form-narrow">
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-refresh"/></svg>
+      <div class="form-card-title">Holat va mas’uliyat</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="id_holat">Holat <span class="req">*</span></label>
+          {{ form.holat }}
+          {% if form.holat.errors %}<div class="form-error">{{ form.holat.errors|join:" " }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_mas_ul_hodim">Mas’ul hodim</label>
+          {{ form.mas_ul_hodim }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-check"/></svg>
+      <div class="form-card-title">Yordam ma‘lumotlari</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="id_yordam_sanasi">Yordam sanasi</label>
+          {{ form.yordam_sanasi }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_yordam_miqdori">Miqdor (so‘m)</label>
+          {{ form.yordam_miqdori }}
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label" for="id_yordam_turi">Yordam turi</label>
+          {{ form.yordam_turi }}
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label" for="id_izoh">Izoh</label>
+          {{ form.izoh }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'murojaat_detail' murojaat.pk %}" class="btn btn-ghost">Bekor qilish</a>
+    <button type="submit" class="btn btn-primary btn-lg">
+      <svg class="icon icon-sm"><use href="#i-save"/></svg>
+      Saqlash
+    </button>
+  </div>
+</form>
+</div>
+{% endblock %}

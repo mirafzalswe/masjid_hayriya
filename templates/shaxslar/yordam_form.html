@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}Yordam qo‘shish{% endblock %}
+{% block page_title %}Yordam qo‘shish{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Yordam qo‘shish</h1>
+    <p class="subtitle">{{ shaxs.fio }} uchun yangi yordam qayd etish</p>
+  </div>
+  <div class="actions">
+    <a href="{% url 'shaxs_detail' shaxs.pk %}" class="btn btn-ghost btn-sm">
+      <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+      Bekor qilish
+    </a>
+  </div>
+</div>
+
+<form method="post" class="form-narrow">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="callout-warn mb-3">{{ form.non_field_errors|join:" " }}</div>
+  {% endif %}
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-check"/></svg>
+      <div class="form-card-title">Yordam tafsilotlari</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.turi.id_for_label }}">
+            Yordam turi <span class="req">*</span>
+          </label>
+          {{ form.turi }}
+          {% if form.turi.errors %}<div class="form-error">{{ form.turi.errors|join:" " }}</div>{% endif %}
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <div class="form-group" id="miqdor-group">
+            <label class="form-label" for="{{ form.miqdor.id_for_label }}">
+              Miqdor (so‘m) <span class="req">*</span>
+            </label>
+            {{ form.miqdor }}
+            <span class="form-hint">Pul yordami uchun majburiy.</span>
+            {% if form.miqdor.errors %}<div class="form-error">{{ form.miqdor.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.sana.id_for_label }}">
+              Sana <span class="req">*</span>
+            </label>
+            {{ form.sana }}
+            {% if form.sana.errors %}<div class="form-error">{{ form.sana.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.mazmun.id_for_label }}">Tavsif</label>
+          {{ form.mazmun }}
+          <span class="form-hint">Masalan: «5 kg sahar, 2L moy, 3 kg go‘sht».</span>
+          {% if form.mazmun.errors %}<div class="form-error">{{ form.mazmun.errors|join:" " }}</div>{% endif %}
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.bergan_fio.id_for_label }}">
+              Kim berdi (F.I.O)
+            </label>
+            {{ form.bergan_fio }}
+            <span class="form-hint">Ixtiyoriy — bo‘sh qoldirilsa «Noma'lum» deb yoziladi.</span>
+            {% if form.bergan_fio.errors %}<div class="form-error">{{ form.bergan_fio.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.bergan_telefon.id_for_label }}">Telefon</label>
+            {{ form.bergan_telefon }}
+            <span class="form-hint">Ixtiyoriy.</span>
+            {% if form.bergan_telefon.errors %}<div class="form-error">{{ form.bergan_telefon.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.murojaat.id_for_label }}">
+            Bog‘liq murojaat
+          </label>
+          {{ form.murojaat }}
+          <span class="form-hint">Aniq bir murojaatga bog‘lash ixtiyoriy.</span>
+          {% if form.murojaat.errors %}<div class="form-error">{{ form.murojaat.errors|join:" " }}</div>{% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row gap-2 mt-3">
+    <a href="{% url 'shaxs_detail' shaxs.pk %}" class="btn btn-secondary flex-1">Bekor qilish</a>
+    <button type="submit" class="btn btn-primary btn-lg flex-1">
+      <svg class="icon icon-sm"><use href="#i-check"/></svg>
+      Saqlash
+    </button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const turi = document.getElementById('{{ form.turi.id_for_label }}');
+  const miqdorGroup = document.getElementById('miqdor-group');
+  const miqdorInput = document.getElementById('{{ form.miqdor.id_for_label }}');
+  if (!turi || !miqdorGroup || !miqdorInput) return;
+
+  function toggle() {
+    const isPul = turi.value === 'pul';
+    miqdorGroup.style.display = isPul ? '' : 'none';
+    if (!isPul) {
+      miqdorInput.value = '';
+    }
+  }
+  turi.addEventListener('change', toggle);
+  toggle();
+})();
+</script>
+{% endblock %}

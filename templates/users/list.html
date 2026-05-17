@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Foydalanuvchilar{% endblock %}
+{% block page_title %}Foydalanuvchilar{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Foydalanuvchilar</h1>
+    <p class="subtitle">Tizim foydalanuvchilari, rollari va Telegram sozlamalari</p>
+  </div>
+  <a href="{% url 'user_create' %}" class="btn btn-primary">
+    <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+    Yangi foydalanuvchi
+  </a>
+</div>
+
+<div class="card mb-3">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Foydalanuvchi</th>
+          <th>Rol</th>
+          <th class="hide-sm">Telegram ID</th>
+          <th class="hide-sm">Oxirgi kirish</th>
+          <th>Holat</th>
+          <th class="col-w-act">Amal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="cell-person">
+              <span class="avatar {% if u.profile.role == 'admin' %}is-admin{% elif u.profile.role == 'imam' %}is-imam{% else %}is-hodim{% endif %}">
+                {{ u.first_name|first|default:u.username|first|upper }}
+              </span>
+              <div>
+                <div class="cell-strong">{{ u.get_full_name|default:u.username }}</div>
+                <div class="cell-sub">@{{ u.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if u.profile.role == 'admin' %}
+              <span class="badge badge-warn">Administrator</span>
+            {% elif u.profile.role == 'imam' %}
+              <span class="badge badge-accent">Bosh Imom</span>
+            {% else %}
+              <span class="badge badge-neutral">Hodim</span>
+            {% endif %}
+          </td>
+          <td class="hide-sm">
+            {% if u.profile.telegram_id %}
+              <span class="kbd tabular">{{ u.profile.telegram_id }}</span>
+            {% else %}
+              <span class="text-mute fs-12">— sozlanmagan</span>
+            {% endif %}
+          </td>
+          <td class="hide-sm cell-mute tabular">
+            {% if u.last_login %}{{ u.last_login|date:"d.m.Y H:i" }}{% else %}Hech qachon{% endif %}
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge badge-success">Faol</span>
+            {% else %}
+              <span class="badge badge-danger">Bloklangan</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'user_edit' u.pk %}" class="btn btn-secondary btn-sm btn-icon-only" aria-label="Tahrirlash">
+              <svg class="icon icon-sm"><use href="#i-edit"/></svg>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">
+        <svg class="icon"><use href="#i-shield"/></svg>
+        Rol huquqlari
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="legend-stack">
+        <div class="legend-item is-admin">
+          <div class="legend-title">
+            <svg class="icon icon-sm"><use href="#i-shield"/></svg>
+            Administrator
+          </div>
+          <div class="legend-desc">Ko‘rish · Qo‘shish · Tahrirlash · O‘chirish · Foydalanuvchilar</div>
+        </div>
+        <div class="legend-item is-imam">
+          <div class="legend-title">
+            <svg class="icon icon-sm"><use href="#i-edit"/></svg>
+            Bosh Imom
+          </div>
+          <div class="legend-desc">Ko‘rish · Qo‘shish · Tahrirlash</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-title">
+            <svg class="icon icon-sm"><use href="#i-eye"/></svg>
+            Hodim
+          </div>
+          <div class="legend-desc">Faqat ko‘rish</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">
+        <svg class="icon"><use href="#i-send"/></svg>
+        Telegram bot ulash
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="cell-soft fs-13 mb-3">
+        Bot faqat <strong>Telegram ID si ro‘yxatga olingan</strong> hodimlar uchun ishlaydi.
+      </p>
+      <div class="onboard">
+        <ol>
+          <li>Hodim botga kiradi va <span class="kbd">/start</span> bosadi.</li>
+          <li>Bot uning Telegram ID sini ko‘rsatadi.</li>
+          <li>Admin <strong>Tahrir</strong> sahifasiga kirib ID ni qo‘shadi.</li>
+          <li>Hodim botga qayta kiradi.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

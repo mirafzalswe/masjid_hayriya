@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}{{ murojaat.shaxs.fio }}{% endblock %}
+{% block page_title %}Murojaat #{{ murojaat.pk }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ murojaat.shaxs.fio }}</h1>
+    <p class="subtitle">Murojaat #{{ murojaat.pk }} · {{ murojaat.murojaat_sanasi|date:"d.m.Y" }}</p>
+  </div>
+  <div class="actions">
+    <a href="{% url 'murojaat_list' %}" class="btn btn-ghost btn-sm">
+      <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+      Ro‘yxat
+    </a>
+    {% if can_edit %}
+      <a href="{% url 'murojaat_edit' murojaat.pk %}" class="btn btn-secondary btn-sm">
+        <svg class="icon icon-sm"><use href="#i-edit"/></svg>
+        Tahrirlash
+      </a>
+    {% endif %}
+    {% if is_admin %}
+      <a href="{% url 'murojaat_delete' murojaat.pk %}" class="btn btn-danger-soft btn-sm btn-icon-only" aria-label="O‘chirish">
+        <svg class="icon icon-sm"><use href="#i-trash"/></svg>
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="status-row">
+  {% if murojaat.holat == 'yangi' %}<span class="badge badge-info badge-lg">Yangi</span>
+  {% elif murojaat.holat == 'korib_chiqilmoqda' %}<span class="badge badge-warn badge-lg">Ko‘rib chiqilmoqda</span>
+  {% elif murojaat.holat == 'yordam_berildi' %}<span class="badge badge-success badge-lg">Yordam berildi</span>
+  {% elif murojaat.holat == 'rad_etildi' %}<span class="badge badge-danger badge-lg">Rad etildi</span>
+  {% elif murojaat.holat == 'kechiktirildi' %}<span class="badge badge-muted badge-lg">Kechiktirildi</span>
+  {% endif %}
+  <span class="pri pri-{{ murojaat.priority }}">
+    <span class="pri-dot"></span>
+    {% if murojaat.priority == 1 %}Yuqori muhimlik
+    {% elif murojaat.priority == 2 %}O‘rta muhimlik
+    {% else %}Past muhimlik{% endif %}
+  </span>
+  {% if murojaat.telegram_id %}
+    <span class="tg-pill">
+      <svg class="icon icon-sm"><use href="#i-send"/></svg>
+      Telegram orqali
+    </span>
+  {% endif %}
+</div>
+
+<div class="detail-grid">
+  <div class="detail-col">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-list"/></svg>
+          Murojaat ma‘lumotlari
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-tag"/></svg>Muhtojlik</span>
+          <span class="kv-val">{{ murojaat.get_muhtojlik_turi_display|strip_emoji }}</span>
+        </div>
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-calendar"/></svg>Murojaat sanasi</span>
+          <span class="kv-val tabular">{{ murojaat.murojaat_sanasi|date:"d.m.Y" }}</span>
+        </div>
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-clock"/></svg>Kiritilgan</span>
+          <span class="kv-val tabular">{{ murojaat.yaratilgan|date:"d.m.Y H:i" }}</span>
+        </div>
+        {% if murojaat.telegram_username %}
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-send"/></svg>Telegram</span>
+          <span class="kv-val">@{{ murojaat.telegram_username }}</span>
+        </div>
+        {% endif %}
+
+        <div class="section-label">Murojaat mazmuni</div>
+        <div class="prose">{{ murojaat.mazmun }}</div>
+
+        {% if murojaat.izoh %}
+          <div class="section-label">Izoh</div>
+          <div class="callout-warn">{{ murojaat.izoh }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if murojaat.holat == 'yordam_berildi' %}
+    <div class="card tone-accent">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-check"/></svg>
+          Yordam haqida ma‘lumot
+        </div>
+      </div>
+      <div class="card-body">
+        {% if murojaat.yordam_sanasi %}
+        <div class="kv"><span class="kv-key">Yordam sanasi</span><span class="kv-val tabular">{{ murojaat.yordam_sanasi|date:"d.m.Y" }}</span></div>
+        {% endif %}
+        {% if murojaat.yordam_turi %}
+        <div class="kv"><span class="kv-key">Yordam turi</span><span class="kv-val">{{ murojaat.yordam_turi }}</span></div>
+        {% endif %}
+        {% if murojaat.yordam_miqdori %}
+        <div class="kv"><span class="kv-key">Miqdor</span><span class="kv-val amount">{{ murojaat.yordam_miqdori|floatformat:0 }} so‘m</span></div>
+        {% endif %}
+        {% if murojaat.mas_ul_hodim %}
+        <div class="kv"><span class="kv-key">Mas’ul hodim</span><span class="kv-val">{{ murojaat.mas_ul_hodim.get_full_name|default:murojaat.mas_ul_hodim.username }}</span></div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# ─── Shaxsga berilgan barcha yordamlar tarixi ─── #}
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-check"/></svg>
+          {{ murojaat.shaxs.fio }} uchun yordam tarixi
+        </div>
+        <span class="badge badge-accent badge-count">{{ yordam_soni }}</span>
+      </div>
+      <div class="card-body">
+        {% if yordamlar %}
+          {% if pul_summa %}
+            <div class="kv mb-3">
+              <span class="kv-key">Jami pul yordami</span>
+              <span class="kv-val cell-strong tabular">{{ pul_summa|floatformat:0 }} so‘m</span>
+            </div>
+          {% endif %}
+          <ul class="timeline">
+            {% for y in yordamlar %}
+              <li class="timeline-item">
+                <div class="timeline-head">
+                  <div class="timeline-title">
+                    <strong>{{ y.bergan_fio }}</strong>
+                    <span class="badge badge-info">{{ y.get_turi_display }}</span>
+                    {% if y.murojaat_id == murojaat.pk %}
+                      <span class="badge badge-success">Shu murojaat</span>
+                    {% endif %}
+                  </div>
+                  <div class="timeline-meta tabular">{{ y.sana|date:"d.m.Y" }}</div>
+                </div>
+                <div class="timeline-body">
+                  {% if y.miqdor %}
+                    <div class="cell-strong">{{ y.miqdor|floatformat:0 }} so‘m</div>
+                  {% endif %}
+                  {% if y.mazmun %}
+                    <div class="cell-soft fs-13">{{ y.mazmun|linebreaksbr }}</div>
+                  {% endif %}
+                  <div class="timeline-foot">
+                    {% if y.bergan_telefon %}
+                      <span class="cell-mute fs-12">
+                        <svg class="icon icon-xs"><use href="#i-phone"/></svg>
+                        <a href="tel:{{ y.bergan_telefon }}" class="tel-link">{{ y.bergan_telefon }}</a>
+                      </span>
+                    {% endif %}
+                    {% if y.qabul_qilgan %}
+                      <span class="cell-mute fs-12">
+                        Qabul qilgan: {{ y.qabul_qilgan.get_full_name|default:y.qabul_qilgan.username }}
+                      </span>
+                    {% endif %}
+                    {% if is_admin %}
+                      <a href="{% url 'yordam_delete' y.pk %}" class="cell-mute fs-12 tone-danger" aria-label="O‘chirish">
+                        <svg class="icon icon-xs"><use href="#i-trash"/></svg>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty">
+            <div class="empty-icon"><svg class="icon"><use href="#i-check"/></svg></div>
+            <div class="empty-title">Bu shaxs uchun hali yordam qayd etilmagan</div>
+            {% if can_edit %}
+              <p class="empty-desc">O‘ng tomondagi «Yordam qo‘shish» tugmasidan foydalaning.</p>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <a href="{% url 'shaxs_detail' murojaat.shaxs.pk %}" class="cell-mute fs-12 mt-3" style="display:inline-block">
+          → {{ murojaat.shaxs.fio }} profilidagi barcha yordamlarni ko‘rish
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="detail-col">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-user"/></svg>
+          Shaxs ma‘lumotlari
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="person-head">
+          <span class="avatar avatar-lg">{{ murojaat.shaxs.fio|first }}</span>
+          <span class="person-name">{{ murojaat.shaxs.fio }}</span>
+        </div>
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-phone"/></svg>Telefon</span>
+          <span class="kv-val tabular"><a href="tel:{{ murojaat.shaxs.telefon }}" class="tel-link">{{ murojaat.shaxs.telefon }}</a></span>
+        </div>
+        {% if murojaat.shaxs.manzil %}
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-pin"/></svg>Manzil</span>
+          <span class="kv-val">{{ murojaat.shaxs.manzil }}</span>
+        </div>
+        {% endif %}
+        <div class="kv">
+          <span class="kv-key"><svg class="icon icon-xs"><use href="#i-list"/></svg>Jami murojaat</span>
+          <span class="kv-val fw-600 tabular">{{ murojaat.shaxs.murojaatlar_soni }}</span>
+        </div>
+        {% if murojaat.shaxs.qoshimcha_ma_lumot %}
+          <div class="onboard mt-3">{{ murojaat.shaxs.qoshimcha_ma_lumot }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if can_edit %}
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-refresh"/></svg>
+          Tezkor amallar
+        </div>
+      </div>
+      <div class="card-body">
+        <a href="{% url 'yordam_create' murojaat.shaxs.pk %}?murojaat={{ murojaat.pk }}" class="btn btn-primary btn-block">
+          <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+          Yordam qo‘shish
+        </a>
+        <a href="{% url 'murojaat_edit' murojaat.pk %}" class="btn btn-secondary btn-block mt-2">
+          <svg class="icon icon-sm"><use href="#i-edit"/></svg>
+          Holatni yangilash
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

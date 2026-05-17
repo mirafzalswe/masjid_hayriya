@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Yangi murojaat{% endblock %}
+{% block page_title %}Yangi murojaat{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Yangi murojaat</h1>
+    <p class="subtitle">Avval shaxsni tanlang yoki yangi shaxs ma‘lumotini kiriting.</p>
+  </div>
+  <a href="{% url 'murojaat_list' %}" class="btn btn-ghost btn-sm">
+    <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+    Ro‘yxat
+  </a>
+</div>
+
+<div class="tabs" role="tablist">
+  <button type="button" class="tab{% if mode == 'yangi' %} is-active{% endif %}" data-mode="yangi" role="tab" aria-selected="{% if mode == 'yangi' %}true{% else %}false{% endif %}">Yangi shaxs</button>
+  <button type="button" class="tab{% if mode == 'mavjud' %} is-active{% endif %}" data-mode="mavjud" role="tab" aria-selected="{% if mode == 'mavjud' %}true{% else %}false{% endif %}">Mavjud shaxs</button>
+</div>
+
+<div id="panel-yangi" {% if mode != 'yangi' %}hidden{% endif %}>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="mode" value="yangi">
+
+    <div class="form-card">
+      <div class="form-card-head">
+        <svg class="icon"><use href="#i-user"/></svg>
+        <div class="form-card-title">Shaxs ma‘lumotlari</div>
+      </div>
+      <div class="form-card-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group col-full">
+            <label class="form-label" for="id_shaxs-fio">F.I.O <span class="req">*</span></label>
+            {{ shaxs_form.fio }}
+            {% if shaxs_form.fio.errors %}<div class="form-error">{{ shaxs_form.fio.errors|join:" " }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="id_shaxs-telefon">Telefon <span class="req">*</span></label>
+            {{ shaxs_form.telefon }}
+            {% if shaxs_form.telefon.errors %}<div class="form-error">{{ shaxs_form.telefon.errors|join:" " }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="id_shaxs-manzil">Manzil</label>
+            {{ shaxs_form.manzil }}
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="id_shaxs-qoshimcha_ma_lumot">Qo‘shimcha ma‘lumot</label>
+            {{ shaxs_form.qoshimcha_ma_lumot }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'murojaatlar/_murojaat_fields.html' with mode='yangi' %}
+
+    <div class="form-actions">
+      <a href="{% url 'murojaat_list' %}" class="btn btn-ghost">Bekor qilish</a>
+      <button type="submit" class="btn btn-primary btn-lg">
+        <svg class="icon icon-sm"><use href="#i-save"/></svg>
+        Saqlash
+      </button>
+    </div>
+  </form>
+</div>
+
+<div id="panel-mavjud" {% if mode != 'mavjud' %}hidden{% endif %}>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="mode" value="mavjud">
+
+    <div class="form-card">
+      <div class="form-card-head">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <div class="form-card-title">Mavjud shaxsni tanlash</div>
+      </div>
+      <div class="form-card-body">
+        <div class="form-group">
+          <label class="form-label" for="id_mur-shaxs">Shaxs <span class="req">*</span></label>
+          {{ murojaat_form.shaxs }}
+          {% if murojaat_form.shaxs.errors %}<div class="form-error">{{ murojaat_form.shaxs.errors|join:" " }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% include 'murojaatlar/_murojaat_fields.html' with mode='mavjud' %}
+
+    <div class="form-actions">
+      <a href="{% url 'murojaat_list' %}" class="btn btn-ghost">Bekor qilish</a>
+      <button type="submit" class="btn btn-primary btn-lg">
+        <svg class="icon icon-sm"><use href="#i-save"/></svg>
+        Saqlash
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.tab[data-mode]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var mode = b.dataset.mode;
+        document.querySelectorAll('.tab[data-mode]').forEach(function (x) {
+          var on = x.dataset.mode === mode;
+          x.classList.toggle('is-active', on);
+          x.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        document.getElementById('panel-yangi').hidden  = mode !== 'yangi';
+        document.getElementById('panel-mavjud').hidden = mode !== 'mavjud';
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

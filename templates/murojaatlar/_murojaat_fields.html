@@ -1,0 +1,105 @@
+{% comment %}
+  Reusable Murojaat fieldset. `mode` is "yangi" | "mavjud" — used in radio
+  ids so the two forms don't collide.
+{% endcomment %}
+{% load ui %}
+
+<div class="form-card">
+  <div class="form-card-head">
+    <svg class="icon"><use href="#i-list"/></svg>
+    <div class="form-card-title">Murojaat tafsilotlari</div>
+  </div>
+  <div class="form-card-body">
+    <div class="form-grid">
+
+      <div class="form-group">
+        <span class="form-label">Muhtojlik turi <span class="req">*</span></span>
+        <div class="choice-grid" role="radiogroup">
+          {% for val, label in tur_choices %}
+            <input type="radio" class="choice-input"
+                   name="mur-muhtojlik_turi"
+                   id="tur-{{ mode }}-{{ val }}"
+                   value="{{ val }}"
+                   {% if murojaat_form.muhtojlik_turi.value == val %}checked{% elif forloop.first and not murojaat_form.muhtojlik_turi.value %}{% endif %}
+                   {% if forloop.first %}required{% endif %}>
+            <label for="tur-{{ mode }}-{{ val }}" class="choice-card">
+              <svg class="icon icon-sm">
+                {% if val == 'oziq_ovqat' %}<use href="#i-package"/>
+                {% elif val == 'dori' %}<use href="#i-plus"/>
+                {% elif val == 'ijara' %}<use href="#i-home"/>
+                {% elif val == 'toy' %}<use href="#i-tag"/>
+                {% elif val == 'taziya' %}<use href="#i-info"/>
+                {% elif val == 'talim' %}<use href="#i-list"/>
+                {% elif val == 'kasalxona' %}<use href="#i-shield"/>
+                {% else %}<use href="#i-tag"/>{% endif %}
+              </svg>
+              {{ label|strip_emoji }}
+            </label>
+          {% endfor %}
+        </div>
+        {% if murojaat_form.muhtojlik_turi.errors %}<div class="form-error">{{ murojaat_form.muhtojlik_turi.errors|join:" " }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <span class="form-label">Muhimlik darajasi <span class="req">*</span></span>
+        <div class="pri-grid" role="radiogroup">
+          <input type="radio" class="pri-input" name="mur-priority" id="pri-{{ mode }}-1" value="1"
+                 {% if murojaat_form.priority.value|stringformat:"s" == "1" %}checked{% endif %}>
+          <label for="pri-{{ mode }}-1" class="pri-card opt-1">
+            <span class="pri-head">
+              <span class="pri pri-1"><span class="pri-dot"></span></span>
+              <span class="pri-name">Yuqori</span>
+            </span>
+            <span class="pri-desc">Tezkor yordam talab qilinadi</span>
+          </label>
+
+          <input type="radio" class="pri-input" name="mur-priority" id="pri-{{ mode }}-2" value="2"
+                 {% if not murojaat_form.priority.value or murojaat_form.priority.value|stringformat:"s" == "2" %}checked{% endif %}>
+          <label for="pri-{{ mode }}-2" class="pri-card opt-2">
+            <span class="pri-head">
+              <span class="pri pri-2"><span class="pri-dot"></span></span>
+              <span class="pri-name">O‘rta</span>
+            </span>
+            <span class="pri-desc">Yaqin orada yordam beriladi</span>
+          </label>
+
+          <input type="radio" class="pri-input" name="mur-priority" id="pri-{{ mode }}-3" value="3"
+                 {% if murojaat_form.priority.value|stringformat:"s" == "3" %}checked{% endif %}>
+          <label for="pri-{{ mode }}-3" class="pri-card opt-3">
+            <span class="pri-head">
+              <span class="pri pri-3"><span class="pri-dot"></span></span>
+              <span class="pri-name">Past</span>
+            </span>
+            <span class="pri-desc">Kechiktirilishi mumkin</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="id_mur-murojaat_sanasi-{{ mode }}">Murojaat sanasi <span class="req">*</span></label>
+          <input type="date" name="mur-murojaat_sanasi" id="id_mur-murojaat_sanasi-{{ mode }}"
+                 class="form-input" required
+                 value="{% if murojaat_form.murojaat_sanasi.value %}{{ murojaat_form.murojaat_sanasi.value|date:'Y-m-d' }}{% else %}{{ today }}{% endif %}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_mur-izoh-{{ mode }}">Izoh</label>
+          <input type="text" name="mur-izoh" id="id_mur-izoh-{{ mode }}"
+                 class="form-input" placeholder="Qo‘shimcha izoh (ixtiyoriy)"
+                 value="{{ murojaat_form.izoh.value|default_if_none:'' }}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_mur-mazmun-{{ mode }}">Murojaat mazmuni <span class="req">*</span></label>
+        <textarea name="mur-mazmun" id="id_mur-mazmun-{{ mode }}" class="form-input"
+                  rows="4" minlength="10"
+                  placeholder="Muhtojlikning sababi, ahvol, oila holati va boshqa muhim ma‘lumotlar…"
+                  required>{{ murojaat_form.mazmun.value|default_if_none:'' }}</textarea>
+        <span class="form-hint">Qanchalik batafsil bo‘lsa, shuncha tezroq ko‘rib chiqiladi.</span>
+        {% if murojaat_form.mazmun.errors %}<div class="form-error">{{ murojaat_form.mazmun.errors|join:" " }}</div>{% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>

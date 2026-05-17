@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Shaxslar{% endblock %}
+{% block page_title %}Shaxslar{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Shaxslar</h1>
+    <p class="subtitle">{{ total }} ta shaxs ro‘yxatda</p>
+  </div>
+</div>
+
+<form method="get">
+  <div class="filterbar">
+    <div class="search">
+      <svg class="icon icon-sm"><use href="#i-search"/></svg>
+      <input type="search" name="q" class="search-input"
+             placeholder="Ism yoki telefon…" value="{{ q }}">
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn btn-secondary btn-sm">Qidirish</button>
+      {% if q %}
+        <a href="{% url 'shaxslar_list' %}" class="btn btn-ghost btn-sm">
+          <svg class="icon icon-sm"><use href="#i-x"/></svg>
+          Tozalash
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Shaxs</th>
+          <th>Telefon</th>
+          <th class="hide-sm">Manzil</th>
+          <th>Murojaatlar</th>
+          <th class="hide-sm">Qo‘shilgan</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in shaxslar %}
+        <tr data-href="{% url 'shaxs_detail' s.pk %}" tabindex="0">
+          <td>
+            <div class="cell-person">
+              <span class="avatar">{{ s.fio|first }}</span>
+              <span class="cell-strong">{{ s.fio }}</span>
+            </div>
+          </td>
+          <td>
+            <a href="tel:{{ s.telefon }}" class="tel-link" onclick="event.stopPropagation()">{{ s.telefon }}</a>
+          </td>
+          <td class="hide-sm cell-mute">{{ s.manzil|default:"—" }}</td>
+          <td>
+            <span class="badge badge-accent badge-count">{{ s.murojaatlar_count }}</span>
+          </td>
+          <td class="hide-sm cell-mute tabular">{{ s.yaratilgan|date:"d.m.Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">
+          <div class="empty">
+            <div class="empty-icon"><svg class="icon"><use href="#i-users"/></svg></div>
+            <div class="empty-title">Shaxslar topilmadi</div>
+            <p class="empty-desc">Qidiruv shartlarini o‘zgartiring yoki yangi murojaat orqali shaxs qo‘shing.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pager" aria-label="Sahifalar">
+    <span class="pager-info">{{ page_obj.start_index }}–{{ page_obj.end_index }} / {{ paginator.count }}</span>
+    {% if page_obj.has_previous %}
+      <a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}">
+        <svg class="icon icon-sm"><use href="#i-chevron-left"/></svg>
+      </a>
+    {% else %}
+      <span class="page is-disabled"><svg class="icon icon-sm"><use href="#i-chevron-left"/></svg></span>
+    {% endif %}
+    {% for n in page_obj.paginator.page_range %}
+      {% if n == page_obj.number %}
+        <span class="page is-current">{{ n }}</span>
+      {% elif n == 1 or n == page_obj.paginator.num_pages or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
+        <a href="?{% if q %}q={{ q }}&{% endif %}page={{ n }}">{{ n }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}">
+        <svg class="icon icon-sm"><use href="#i-chevron-right"/></svg>
+      </a>
+    {% else %}
+      <span class="page is-disabled"><svg class="icon icon-sm"><use href="#i-chevron-right"/></svg></span>
+    {% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

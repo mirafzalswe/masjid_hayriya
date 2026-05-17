@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}{{ shaxs.fio }}{% endblock %}
+{% block page_title %}Shaxs profili{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ shaxs.fio }}</h1>
+    <p class="subtitle">{{ murojaatlar.count }} ta murojaat · {{ yordam_soni }} ta yordam</p>
+  </div>
+  <div class="actions">
+    <a href="{% url 'shaxslar_list' %}" class="btn btn-ghost btn-sm">
+      <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+      Ro‘yxat
+    </a>
+    {% if can_edit %}
+      <a href="{% url 'yordam_create' shaxs.pk %}" class="btn btn-primary btn-sm">
+        <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+        Yordam qo‘shish
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-col">
+
+    {# ─── Shaxs ma'lumotlari ─── #}
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-user"/></svg>
+          Shaxs ma‘lumotlari
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="kv-list">
+          <div class="kv">
+            <span class="kv-key"><svg class="icon icon-xs"><use href="#i-phone"/></svg>Telefon</span>
+            <span class="kv-val"><a href="tel:{{ shaxs.telefon }}" class="tel-link">{{ shaxs.telefon }}</a></span>
+          </div>
+          <div class="kv">
+            <span class="kv-key"><svg class="icon icon-xs"><use href="#i-pin"/></svg>Manzil</span>
+            <span class="kv-val">{{ shaxs.manzil|default:"—" }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-key"><svg class="icon icon-xs"><use href="#i-clock"/></svg>Qo‘shilgan</span>
+            <span class="kv-val tabular">{{ shaxs.yaratilgan|date:"d.m.Y" }}</span>
+          </div>
+          {% if shaxs.qoshimcha_ma_lumot %}
+          <div class="kv">
+            <span class="kv-key"><svg class="icon icon-xs"><use href="#i-info"/></svg>Izoh</span>
+            <span class="kv-val">{{ shaxs.qoshimcha_ma_lumot|linebreaksbr }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ─── Yordam tarixi ─── #}
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-check"/></svg>
+          Yordam tarixi
+        </div>
+        <span class="badge badge-accent badge-count">{{ yordam_soni }}</span>
+      </div>
+      <div class="card-body">
+        {% if yordamlar %}
+          <ul class="timeline">
+            {% for y in yordamlar %}
+              <li class="timeline-item">
+                <div class="timeline-head">
+                  <div class="timeline-title">
+                    <strong>{{ y.bergan_fio }}</strong>
+                    <span class="badge badge-info">{{ y.get_turi_display }}</span>
+                  </div>
+                  <div class="timeline-meta tabular">{{ y.sana|date:"d.m.Y" }}</div>
+                </div>
+                <div class="timeline-body">
+                  {% if y.miqdor %}
+                    <div class="cell-strong">{{ y.miqdor|floatformat:0 }} so‘m</div>
+                  {% endif %}
+                  {% if y.mazmun %}
+                    <div class="cell-soft fs-13">{{ y.mazmun|linebreaksbr }}</div>
+                  {% endif %}
+                  <div class="timeline-foot">
+                    {% if y.bergan_telefon %}
+                      <span class="cell-mute fs-12">
+                        <svg class="icon icon-xs"><use href="#i-phone"/></svg>
+                        <a href="tel:{{ y.bergan_telefon }}" class="tel-link">{{ y.bergan_telefon }}</a>
+                      </span>
+                    {% endif %}
+                    {% if y.qabul_qilgan %}
+                      <span class="cell-mute fs-12">
+                        Qabul qilgan: {{ y.qabul_qilgan.get_full_name|default:y.qabul_qilgan.username }}
+                      </span>
+                    {% endif %}
+                    {% if y.murojaat %}
+                      <a href="{% url 'murojaat_detail' y.murojaat.pk %}" class="cell-mute fs-12">
+                        → Murojaat #{{ y.murojaat.pk }}
+                      </a>
+                    {% endif %}
+                    {% if is_admin %}
+                      <a href="{% url 'yordam_delete' y.pk %}" class="cell-mute fs-12 tone-danger" aria-label="O‘chirish">
+                        <svg class="icon icon-xs"><use href="#i-trash"/></svg>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty">
+            <div class="empty-icon"><svg class="icon"><use href="#i-check"/></svg></div>
+            <div class="empty-title">Hali yordam qayd etilmagan</div>
+            {% if can_edit %}
+              <p class="empty-desc">Birinchi yordamni qo‘shish uchun yuqoridagi tugmadan foydalaning.</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ─── Murojaatlar ─── #}
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-list"/></svg>
+          Barcha murojaatlar
+        </div>
+        <span class="badge badge-muted badge-count">{{ murojaatlar.count }}</span>
+      </div>
+      <div class="card-body p-0">
+        {% if murojaatlar %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Muhtojlik</th>
+                <th>Holat</th>
+                <th class="hide-sm">Sana</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in murojaatlar %}
+              <tr data-href="{% url 'murojaat_detail' m.pk %}" tabindex="0">
+                <td class="tabular cell-strong">#{{ m.pk }}</td>
+                <td>{{ m.get_muhtojlik_turi_display|strip_emoji }}</td>
+                <td>
+                  {% if m.holat == 'yangi' %}<span class="badge badge-info">Yangi</span>
+                  {% elif m.holat == 'korib_chiqilmoqda' %}<span class="badge badge-warn">Ko‘rib chiqilmoqda</span>
+                  {% elif m.holat == 'yordam_berildi' %}<span class="badge badge-success">Yordam berildi</span>
+                  {% elif m.holat == 'rad_etildi' %}<span class="badge badge-danger">Rad etildi</span>
+                  {% else %}<span class="badge badge-muted">Kechiktirildi</span>{% endif %}
+                </td>
+                <td class="hide-sm cell-mute tabular">{{ m.murojaat_sanasi|date:"d.m.Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty">
+          <div class="empty-title">Murojaatlar yo‘q</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="detail-aside">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg class="icon"><use href="#i-info"/></svg>
+          Xulosa
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="kv-list">
+          <div class="kv">
+            <span class="kv-key">Jami yordamlar</span>
+            <span class="kv-val cell-strong">{{ yordam_soni }} ta</span>
+          </div>
+          <div class="kv">
+            <span class="kv-key">Pul yordami</span>
+            <span class="kv-val cell-strong tabular">{{ pul_summa|floatformat:0 }} so‘m</span>
+          </div>
+          <div class="kv">
+            <span class="kv-key">Murojaatlar</span>
+            <span class="kv-val cell-strong">{{ murojaatlar.count }} ta</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if can_edit %}
+    <a href="{% url 'yordam_create' shaxs.pk %}" class="btn btn-primary btn-block mt-3">
+      <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+      Yordam qo‘shish
+    </a>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

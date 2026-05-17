@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Yangi hodim{% endblock %}
+{% block page_title %}Yangi hodim qo‘shish{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Yangi hodim</h1>
+    <p class="subtitle">Masjid hodimini tizimga va botga ulash</p>
+  </div>
+  <a href="{% url 'users_list' %}" class="btn btn-ghost btn-sm">
+    <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+    Orqaga
+  </a>
+</div>
+
+<div class="form-narrow">
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="callout-warn mb-3">{{ form.non_field_errors|join:" " }}</div>
+  {% endif %}
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-user"/></svg>
+      <div class="form-card-title">Hodim ma‘lumotlari</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.fio.id_for_label }}">
+            F.I.O <span class="req">*</span>
+          </label>
+          {{ form.fio }}
+          <span class="form-hint">Familiya, ism, otasining ismi — bir qatorda.</span>
+          {% if form.fio.errors %}<div class="form-error">{{ form.fio.errors|join:" " }}</div>{% endif %}
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.telegram_id.id_for_label }}">
+              Telegram ID <span class="req">*</span>
+            </label>
+            {{ form.telegram_id }}
+            <span class="form-hint">
+              Hodim botda <span class="kbd">/start</span> bosganda ID ko‘rinadi.
+            </span>
+            {% if form.telegram_id.errors %}<div class="form-error">{{ form.telegram_id.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.role.id_for_label }}">
+              Rol <span class="req">*</span>
+            </label>
+            {{ form.role }}
+            <span class="form-hint">Administrator · Bosh Imom · Hodim.</span>
+            {% if form.role.errors %}<div class="form-error">{{ form.role.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.telefon.id_for_label }}">Telefon</label>
+            {{ form.telefon }}
+            <span class="form-hint">Ixtiyoriy.</span>
+            {% if form.telefon.errors %}<div class="form-error">{{ form.telefon.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.password.id_for_label }}">
+              Web parol <span class="req">*</span>
+            </label>
+            {{ form.password }}
+            <span class="form-hint">Kamida 6 belgi. Hodim shu parol bilan saytga kira oladi.</span>
+            {% if form.password.errors %}<div class="form-error">{{ form.password.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="callout-info mt-3">
+    <strong>Eslatma.</strong> Web kirish uchun login Telegram ID dan avtomatik yaratiladi
+    (masalan: <span class="kbd">tg123456789</span>).
+  </div>
+
+  <div class="form-actions mt-3">
+    <a href="{% url 'users_list' %}" class="btn btn-ghost">Bekor qilish</a>
+    <button type="submit" class="btn btn-primary btn-lg">
+      <svg class="icon icon-sm"><use href="#i-check"/></svg>
+      Hodimni qo‘shish
+    </button>
+  </div>
+</form>
+</div>
+{% endblock %}

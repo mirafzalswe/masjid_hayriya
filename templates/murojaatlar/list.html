@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}Murojaatlar{% endblock %}
+{% block page_title %}Murojaatlar{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Murojaatlar</h1>
+    <p class="subtitle">Jami <strong class="tabular">{{ total }}</strong> ta murojaat</p>
+  </div>
+  {% if can_edit %}
+  <div class="actions">
+    <a href="{% url 'murojaat_create' %}" class="btn btn-primary">
+      <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+      Yangi murojaat
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<form method="get">
+  <div class="filterbar">
+    <div class="search">
+      <svg class="icon icon-sm"><use href="#i-search"/></svg>
+      <label for="q" class="sr-only">Qidiruv</label>
+      <input type="search" id="q" name="q" class="search-input"
+             placeholder="Ism, telefon yoki mazmun…" value="{{ filters.q }}">
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="f-holat">Holat</label>
+      <select id="f-holat" name="holat" class="filter-input">
+        <option value="">Barchasi</option>
+        {% for val,label in holat_choices %}
+          <option value="{{ val }}" {% if filters.holat == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="f-priority">Muhimlik</label>
+      <select id="f-priority" name="priority" class="filter-input">
+        <option value="">Barchasi</option>
+        <option value="1" {% if filters.priority == "1" %}selected{% endif %}>Yuqori</option>
+        <option value="2" {% if filters.priority == "2" %}selected{% endif %}>O‘rta</option>
+        <option value="3" {% if filters.priority == "3" %}selected{% endif %}>Past</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="f-tur">Tur</label>
+      <select id="f-tur" name="tur" class="filter-input">
+        <option value="">Barchasi</option>
+        {% for val,label in tur_choices %}
+          <option value="{{ val }}" {% if filters.tur == val %}selected{% endif %}>{{ label|strip_emoji }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="f-oy">Oy</label>
+      <select id="f-oy" name="oy" class="filter-input">
+        <option value="">Barchasi</option>
+        {% for oy in oylar %}
+          <option value="{{ oy|date:'Y-m' }}" {% if filters.oy == oy|date:"Y-m" %}selected{% endif %}>{{ oy|date:"F Y" }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn btn-secondary btn-sm">
+        <svg class="icon icon-sm"><use href="#i-filter"/></svg>
+        Filtr
+      </button>
+      {% if filters.q or filters.holat or filters.priority or filters.tur or filters.oy %}
+      <a href="{% url 'murojaat_list' %}" class="btn btn-ghost btn-sm">
+        <svg class="icon icon-sm"><use href="#i-x"/></svg>
+        Tozalash
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-w-id">№</th>
+          <th>Shaxs</th>
+          <th class="hide-sm">Muhtojlik</th>
+          <th>Muhimlik</th>
+          <th>Holat</th>
+          <th class="hide-sm">Sana</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in murojaatlar %}
+        <tr data-href="{% url 'murojaat_detail' m.pk %}" tabindex="0">
+          <td class="cell-id">
+            #{{ m.pk }}
+            {% if m.telegram_id %}
+              <svg class="icon icon-xs icon-inline" aria-label="Telegram"><use href="#i-send"/></svg>
+            {% endif %}
+          </td>
+          <td>
+            <div class="cell-strong">{{ m.shaxs.fio }}</div>
+            <div class="cell-sub tabular">{{ m.shaxs.telefon }}</div>
+          </td>
+          <td class="hide-sm cell-soft">{{ m.get_muhtojlik_turi_display|strip_emoji }}</td>
+          <td>
+            <span class="pri pri-{{ m.priority }}">
+              <span class="pri-dot"></span>
+              {% if m.priority == 1 %}Yuqori{% elif m.priority == 2 %}O‘rta{% else %}Past{% endif %}
+            </span>
+          </td>
+          <td>
+            {% if m.holat == 'yangi' %}<span class="badge badge-info">Yangi</span>
+            {% elif m.holat == 'korib_chiqilmoqda' %}<span class="badge badge-warn">Ko‘rilmoqda</span>
+            {% elif m.holat == 'yordam_berildi' %}<span class="badge badge-success">Berildi</span>
+            {% elif m.holat == 'rad_etildi' %}<span class="badge badge-danger">Rad etildi</span>
+            {% elif m.holat == 'kechiktirildi' %}<span class="badge badge-muted">Kechiktirildi</span>
+            {% endif %}
+          </td>
+          <td class="hide-sm cell-mute tabular">{{ m.murojaat_sanasi|date:"d.m.Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">
+          <div class="empty">
+            <div class="empty-icon"><svg class="icon"><use href="#i-list"/></svg></div>
+            <div class="empty-title">Murojaatlar topilmadi</div>
+            <p class="empty-desc">Filtr shartlarini o‘zgartirib ko‘ring yoki yangi murojaat qo‘shing.</p>
+            {% if can_edit %}
+              <a href="{% url 'murojaat_create' %}" class="btn btn-primary mt-2">
+                <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+                Yangi murojaat
+              </a>
+            {% endif %}
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pager" aria-label="Sahifalar">
+    <span class="pager-info">{{ page_obj.start_index }}–{{ page_obj.end_index }} / {{ paginator.count }}</span>
+
+    {% with qs="q="|add:filters.q|add:"&holat="|add:filters.holat|add:"&priority="|add:filters.priority|add:"&tur="|add:filters.tur|add:"&oy="|add:filters.oy %}
+      {% if page_obj.has_previous %}
+        <a href="?{{ qs }}&page={{ page_obj.previous_page_number }}" aria-label="Oldingi">
+          <svg class="icon icon-sm"><use href="#i-chevron-left"/></svg>
+        </a>
+      {% else %}
+        <span class="page is-disabled"><svg class="icon icon-sm"><use href="#i-chevron-left"/></svg></span>
+      {% endif %}
+
+      {% for n in page_obj.paginator.page_range %}
+        {% if n == page_obj.number %}
+          <span class="page is-current" aria-current="page">{{ n }}</span>
+        {% elif n == 1 or n == page_obj.paginator.num_pages or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
+          <a href="?{{ qs }}&page={{ n }}">{{ n }}</a>
+        {% elif n == 2 or n == page_obj.paginator.num_pages|add:"-1" %}
+          <span class="page ellipsis">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?{{ qs }}&page={{ page_obj.next_page_number }}" aria-label="Keyingi">
+          <svg class="icon icon-sm"><use href="#i-chevron-right"/></svg>
+        </a>
+      {% else %}
+        <span class="page is-disabled"><svg class="icon icon-sm"><use href="#i-chevron-right"/></svg></span>
+      {% endif %}
+    {% endwith %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

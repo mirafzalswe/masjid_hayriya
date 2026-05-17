@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Kirish — Masjid Xayriya</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=7">
+</head>
+<body>
+
+{% include '_icons.html' %}
+
+<div class="login-page">
+
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="login-mark"><svg class="icon"><use href="#i-shield"/></svg></div>
+      <div>
+        <div class="login-title">Masjid Xayriya</div>
+      </div>
+      <div class="login-tag">
+        Nochor kishilarga yordam berish — eng ulug‘ savob amallardan biridir.
+      </div>
+      <div class="login-quote">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-box">
+      <div class="login-head">
+        <div>
+          <div class="login-h1">Tizimga kirish</div>
+          <div class="login-sub">Davom etish uchun ma‘lumotlaringizni kiriting</div>
+        </div>
+        <button class="icon-btn" id="js-theme" aria-label="Tema almashtirish" type="button">
+          <svg class="icon" id="js-theme-icon"><use href="#i-moon"/></svg>
+        </button>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="flash flash-error mb-3" role="alert">
+          <svg class="icon icon-sm"><use href="#i-alert"/></svg>
+          <span>{{ form.non_field_errors|join:" " }}</span>
+        </div>
+      {% elif form.errors %}
+        <div class="flash flash-error mb-3" role="alert">
+          <svg class="icon icon-sm"><use href="#i-alert"/></svg>
+          <span>Foydalanuvchi nomi yoki parol noto‘g‘ri.</span>
+        </div>
+      {% endif %}
+
+      <form method="post" class="login-form" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="id_username">Foydalanuvchi nomi</label>
+          {{ form.username }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_password">Parol</label>
+          <div class="pwd-wrap">
+            {{ form.password }}
+            <button type="button" id="js-eye" class="pwd-toggle" aria-label="Parolni ko‘rish">
+              <svg class="icon icon-sm" id="js-eye-icon"><use href="#i-eye"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Kirish</button>
+      </form>
+
+      <div class="demo-section">
+        <div class="demo-title">Demo hisoblar</div>
+        <div class="demo-list">
+          {% for username, password, label in demo_accounts %}
+          <button type="button" class="demo-row" data-user="{{ username }}" data-pass="{{ password }}">
+            <span class="demo-id">{{ username }} / {{ password }}</span>
+            <span class="demo-tag">{{ label }}</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var THEME_KEY = 'mxTheme';
+
+  function setIcon(t) {
+    var ic = document.getElementById('js-theme-icon');
+    if (!ic) return;
+    var u = ic.querySelector('use');
+    if (u) u.setAttribute('href', t === 'dark' ? '#i-sun' : '#i-moon');
+  }
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    setIcon(t);
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  }
+  applyTheme((function () {
+    try { return localStorage.getItem(THEME_KEY) || 'light'; } catch (e) { return 'light'; }
+  })());
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('js-theme');
+    if (btn) btn.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme') || 'light';
+      applyTheme(cur === 'dark' ? 'light' : 'dark');
+    });
+
+    var u = document.getElementById('id_username');
+    var p = document.getElementById('id_password');
+
+    var eye = document.getElementById('js-eye');
+    var eyeIcon = document.getElementById('js-eye-icon');
+    if (eye && p && eyeIcon) eye.addEventListener('click', function () {
+      var show = p.type === 'password';
+      p.type = show ? 'text' : 'password';
+      var u = eyeIcon.querySelector('use');
+      if (u) u.setAttribute('href', show ? '#i-eye-off' : '#i-eye');
+    });
+
+    document.querySelectorAll('.demo-row').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (u) u.value = b.dataset.user || '';
+        if (p) p.value = b.dataset.pass || '';
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

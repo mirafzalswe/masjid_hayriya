@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}{{ edited_user.username }} — Tahrirlash{% endblock %}
+{% block page_title %}Foydalanuvchi tahrirlash{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ edited_user.get_full_name|default:edited_user.username }}</h1>
+    <p class="subtitle">@{{ edited_user.username }}</p>
+  </div>
+  <a href="{% url 'users_list' %}" class="btn btn-ghost btn-sm">
+    <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+    Orqaga
+  </a>
+</div>
+
+<div class="form-narrow-md">
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-user"/></svg>
+      <div class="form-card-title">Shaxsiy ma‘lumotlar</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group"><label class="form-label" for="id_last_name">Familiya</label>{{ form.last_name }}</div>
+        <div class="form-group"><label class="form-label" for="id_first_name">Ism</label>{{ form.first_name }}</div>
+        <div class="form-group">
+          <label class="form-label" for="id_telefon">Telefon</label>{{ form.telefon }}
+          {% if form.telefon.errors %}<div class="form-error">{{ form.telefon.errors|join:" " }}</div>{% endif %}
+        </div>
+        <div class="form-group"><label class="form-label" for="id_email">Email</label>{{ form.email }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-shield"/></svg>
+      <div class="form-card-title">Rol va parol</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group col-full">
+          <label class="form-label" for="id_role">Rol <span class="req">*</span></label>
+          {{ form.role }}
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label" for="id_new_password">Yangi parol</label>
+          {{ form.new_password }}
+          {% if form.new_password.errors %}<div class="form-error">{{ form.new_password.errors|join:" " }}</div>{% endif %}
+          <span class="form-hint">Bo‘sh qoldirilsa parol o‘zgarmaydi.</span>
+        </div>
+        <div class="form-group is-row">
+          {{ form.is_active }}
+          <label class="form-label is-static" for="id_is_active">Faol holat</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-head">
+      <svg class="icon"><use href="#i-send"/></svg>
+      <div class="form-card-title">Telegram</div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-group">
+        <label class="form-label" for="id_telegram_id">Telegram ID</label>
+        {{ form.telegram_id }}
+        {% if form.telegram_id.errors %}<div class="form-error">{{ form.telegram_id.errors|join:" " }}</div>{% endif %}
+        <span class="form-hint">Hodim botda <span class="kbd">/start</span> bosganda o‘z ID sini ko‘radi.</span>
+      </div>
+      {% if edited_user.profile.telegram_id %}
+        <div class="tg-status is-on">
+          <svg class="icon icon-sm"><use href="#i-check"/></svg>
+          <span>ID: <strong class="tabular">{{ edited_user.profile.telegram_id }}</strong> — bot ulangan.</span>
+        </div>
+      {% else %}
+        <div class="tg-status is-off">
+          <svg class="icon icon-sm"><use href="#i-alert"/></svg>
+          <span>Telegram ID sozlanmagan — hodim bot orqali kira olmaydi.</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'users_list' %}" class="btn btn-ghost">Bekor qilish</a>
+    <button type="submit" class="btn btn-primary btn-lg">
+      <svg class="icon icon-sm"><use href="#i-save"/></svg>
+      Saqlash
+    </button>
+  </div>
+</form>
+</div>
+{% endblock %}

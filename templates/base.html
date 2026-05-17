@@ -1,0 +1,202 @@
+{% load static %}
+{% load ui %}
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fafaf7">
+  <title>{% block title %}Murojaat{% endblock %} — Masjid Xayriya</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=9">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% include '_icons.html' %}
+
+{% if user.is_authenticated %}
+
+<div class="sidebar-overlay" id="js-overlay" aria-hidden="true"></div>
+
+<aside class="sidebar" id="js-sidebar" role="navigation" aria-label="Asosiy menyu">
+  <a href="{% url 'dashboard' %}" class="brand" aria-label="Bosh sahifa">
+    <span class="brand-mark" aria-hidden="true">MX</span>
+    <span class="brand-text">
+      <span class="brand-name">Masjid Xayriya</span>
+      <span class="brand-sub">Boshqaruv</span>
+    </span>
+  </a>
+
+  <nav class="nav">
+    <div class="nav-section">Asosiy</div>
+
+    <a href="{% url 'dashboard' %}" class="nav-link{% if request.resolver_match.url_name == 'dashboard' %} is-active{% endif %}">
+      <svg class="icon"><use href="#i-home"/></svg>
+      Bosh sahifa
+    </a>
+
+    <a href="{% url 'murojaat_list' %}" class="nav-link{% if request.resolver_match.url_name in 'murojaat_list,murojaat_detail,murojaat_edit,murojaat_delete' %} is-active{% endif %}">
+      <svg class="icon"><use href="#i-list"/></svg>
+      Murojaatlar
+    </a>
+
+    <a href="{% url 'shaxslar_list' %}" class="nav-link{% if 'shaxslar' in request.resolver_match.url_name %} is-active{% endif %}">
+      <svg class="icon"><use href="#i-users"/></svg>
+      Shaxslar
+    </a>
+
+    {% if can_edit %}
+      <div class="nav-divider"></div>
+      <div class="nav-section">Amallar</div>
+      <a href="{% url 'murojaat_create' %}" class="nav-link{% if request.resolver_match.url_name == 'murojaat_create' %} is-active{% endif %}">
+        <svg class="icon"><use href="#i-plus"/></svg>
+        Yangi murojaat
+      </a>
+    {% endif %}
+
+    {% if is_admin %}
+      <div class="nav-divider"></div>
+      <div class="nav-section">Admin</div>
+      <a href="{% url 'users_list' %}" class="nav-link{% if 'users' in request.resolver_match.url_name or 'user_' in request.resolver_match.url_name %} is-active{% endif %}">
+        <svg class="icon"><use href="#i-shield"/></svg>
+        Foydalanuvchilar
+      </a>
+    {% endif %}
+  </nav>
+
+  <div class="user-card">
+    <span class="avatar {% if user_role == 'admin' %}is-admin{% elif user_role == 'imam' %}is-imam{% else %}is-hodim{% endif %}" aria-hidden="true">
+      {{ user.first_name|first|default:user.username|first|upper }}
+    </span>
+    <span class="user-meta">
+      <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+      <span class="user-role">
+        {% if user_role == 'admin' %}Administrator
+        {% elif user_role == 'imam' %}Bosh Imom
+        {% else %}Hodim{% endif %}
+      </span>
+    </span>
+    <a href="{% url 'logout' %}" class="icon-btn is-danger" title="Chiqish" aria-label="Chiqish">
+      <svg class="icon"><use href="#i-logout"/></svg>
+    </a>
+  </div>
+</aside>
+
+<div class="main-wrap">
+  <header class="topbar">
+    <button class="icon-btn menu-btn" id="js-hamburger" type="button"
+            aria-label="Menyu" aria-expanded="false" aria-controls="js-sidebar">
+      <svg class="icon"><use href="#i-menu"/></svg>
+    </button>
+
+    <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+
+    <div class="topbar-actions">
+      <button class="icon-btn" id="js-theme" type="button" aria-label="Tema almashtirish">
+        <svg class="icon" id="js-theme-icon"><use href="#i-moon"/></svg>
+      </button>
+      {% if can_edit %}
+        <a href="{% url 'murojaat_create' %}" class="btn btn-primary btn-sm">
+          <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+          <span class="hide-sm">Yangi murojaat</span>
+        </a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="page" id="main-content">
+    {% if messages %}
+      <div class="flash-stack" role="status" aria-live="polite">
+        {% for message in messages %}
+          <div class="flash flash-{{ message.tags|default:'info' }}">
+            <svg class="icon icon-sm">
+              {% if 'success' in message.tags %}<use href="#i-check"/>
+              {% elif 'error' in message.tags %}<use href="#i-alert"/>
+              {% elif 'warning' in message.tags %}<use href="#i-alert"/>
+              {% else %}<use href="#i-info"/>{% endif %}
+            </svg>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+
+<script>
+(function () {
+  'use strict';
+
+  var THEME_KEY = 'mxTheme';
+
+  function setThemeIcon(t) {
+    var ic = document.getElementById('js-theme-icon');
+    if (!ic) return;
+    var use = ic.querySelector('use');
+    if (use) use.setAttribute('href', t === 'dark' ? '#i-sun' : '#i-moon');
+  }
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    setThemeIcon(t);
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  }
+
+  applyTheme((function () {
+    try { return localStorage.getItem(THEME_KEY) || 'light'; } catch (e) { return 'light'; }
+  })());
+
+  window.toggleTheme = function () {
+    var cur = document.documentElement.getAttribute('data-theme') || 'light';
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var t = document.getElementById('js-theme');
+    if (t) t.addEventListener('click', window.toggleTheme);
+
+    var sb = document.getElementById('js-sidebar');
+    var ov = document.getElementById('js-overlay');
+    var hb = document.getElementById('js-hamburger');
+
+    function open()  { if (!sb) return; sb.classList.add('is-open');    ov && ov.classList.add('is-open');    hb && hb.setAttribute('aria-expanded','true');  document.body.style.overflow='hidden'; }
+    function close() { if (!sb) return; sb.classList.remove('is-open'); ov && ov.classList.remove('is-open'); hb && hb.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+
+    if (hb) hb.addEventListener('click', function () {
+      sb && sb.classList.contains('is-open') ? close() : open();
+    });
+    if (ov) ov.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    document.querySelectorAll('tr[data-href]').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('a,button,input,select')) return;
+        window.location.href = this.dataset.href;
+      });
+      row.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') window.location.href = this.dataset.href;
+      });
+    });
+
+    setTimeout(function () {
+      document.querySelectorAll('.flash').forEach(function (el) {
+        el.style.transition = 'opacity .35s ease, transform .35s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-4px)';
+        setTimeout(function () { el.remove(); }, 400);
+      });
+    }, 5500);
+  });
+})();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

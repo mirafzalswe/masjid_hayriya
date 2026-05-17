@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static ui %}
+{% block title %}Bosh sahifa{% endblock %}
+{% block page_title %}Bosh sahifa{% endblock %}
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Assalomu Alaykum, {{ user.first_name|default:user.username }}</h1>
+    <p class="subtitle">Bugungi holat va so‘nggi murojaatlar</p>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat">
+    <div class="stat-head">
+      <span class="stat-label">Jami murojaatlar</span>
+      <span class="stat-icon"><svg class="icon icon-sm"><use href="#i-list"/></svg></span>
+    </div>
+    <div class="stat-num">{{ jami }}</div>
+    <div class="stat-foot">Tizimga kiritilgan barcha murojaatlar</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-head">
+      <span class="stat-label">Yangi / Ko‘rilmagan</span>
+      <span class="stat-icon tone-warn"><svg class="icon icon-sm"><use href="#i-alert"/></svg></span>
+    </div>
+    <div class="stat-num">{{ yangi }}</div>
+    <div class="stat-foot">Tezkor ko‘rib chiqishni kutmoqda</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-head">
+      <span class="stat-label">Yordam berildi</span>
+      <span class="stat-icon tone-accent"><svg class="icon icon-sm"><use href="#i-check"/></svg></span>
+    </div>
+    <div class="stat-num">{{ yordam_berildi }}</div>
+    <div class="stat-foot">Yopilgan murojaatlar</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-head">
+      <span class="stat-label">Bu oyda</span>
+      <span class="stat-icon tone-info"><svg class="icon icon-sm"><use href="#i-calendar"/></svg></span>
+    </div>
+    <div class="stat-num">{{ bu_oy }}</div>
+    <div class="stat-foot">Joriy oydagi yangilar</div>
+  </div>
+
+  {% if favqulodda %}
+  <div class="stat">
+    <div class="stat-head">
+      <span class="stat-label">Yuqori muhimlik</span>
+      <span class="stat-icon tone-danger"><svg class="icon icon-sm"><use href="#i-alert"/></svg></span>
+    </div>
+    <div class="stat-num">{{ favqulodda }}</div>
+    <div class="stat-foot">Tezkor yordam talab etadi</div>
+  </div>
+  {% endif %}
+
+  {% if yordam_summa %}
+  <div class="stat">
+    <div class="stat-head">
+      <span class="stat-label">Berilgan yordam</span>
+      <span class="stat-icon tone-accent"><svg class="icon icon-sm"><use href="#i-money"/></svg></span>
+    </div>
+    <div class="stat-num">{{ yordam_summa|floatformat:0 }}</div>
+    <div class="stat-foot">so‘mda hisoblangan</div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="grid-2 mb-4">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">
+        <svg class="icon"><use href="#i-bar-chart"/></svg>
+        Oylik murojaatlar
+      </div>
+      <span class="text-mute fs-12">So‘nggi 6 oy</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="js-bar" height="200" aria-label="Oylik diagramma" role="img"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">
+        <svg class="icon"><use href="#i-tag"/></svg>
+        Muhtojlik turlari
+      </div>
+    </div>
+    <div class="card-body">
+      {% if tur_stat %}
+        <div class="summary">
+          {% for item in tur_stat %}
+          <div class="summary-row">
+            <div class="summary-line">
+              <span class="name">{{ item.label|strip_emoji }}</span>
+              <span class="count">{{ item.son }}</span>
+            </div>
+            <div class="bar"><div class="bar-fill" style="width: {% widthratio item.son jami 100 %}%;"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">
+          <div class="empty-icon"><svg class="icon"><use href="#i-tag"/></svg></div>
+          <div class="empty-title">Ma‘lumot yo‘q</div>
+          <p class="empty-desc">Murojaatlar qo‘shilgach statistika shu yerda paydo bo‘ladi.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="card-title">
+      <svg class="icon"><use href="#i-clock"/></svg>
+      So‘nggi murojaatlar
+    </div>
+    <a href="{% url 'murojaat_list' %}" class="btn btn-ghost btn-sm">
+      Barchasi
+      <svg class="icon icon-sm"><use href="#i-arrow-right"/></svg>
+    </a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Shaxs</th>
+          <th class="hide-sm">Muhtojlik</th>
+          <th>Muhimlik</th>
+          <th>Holat</th>
+          <th class="hide-sm">Sana</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in songi_murojaatlar %}
+        <tr data-href="{% url 'murojaat_detail' m.pk %}" tabindex="0">
+          <td>
+            <div class="cell-strong">{{ m.shaxs.fio }}</div>
+            <div class="cell-sub tabular">{{ m.shaxs.telefon }}</div>
+          </td>
+          <td class="hide-sm cell-soft">{{ m.get_muhtojlik_turi_display|strip_emoji }}</td>
+          <td>
+            <span class="pri pri-{{ m.priority }}">
+              <span class="pri-dot"></span>
+              {% if m.priority == 1 %}Yuqori{% elif m.priority == 2 %}O‘rta{% else %}Past{% endif %}
+            </span>
+          </td>
+          <td>
+            {% if m.holat == 'yangi' %}<span class="badge badge-info">Yangi</span>
+            {% elif m.holat == 'korib_chiqilmoqda' %}<span class="badge badge-warn">Ko‘rilmoqda</span>
+            {% elif m.holat == 'yordam_berildi' %}<span class="badge badge-success">Berildi</span>
+            {% elif m.holat == 'rad_etildi' %}<span class="badge badge-danger">Rad etildi</span>
+            {% elif m.holat == 'kechiktirildi' %}<span class="badge badge-muted">Kechiktirildi</span>
+            {% endif %}
+          </td>
+          <td class="hide-sm cell-mute tabular">{{ m.murojaat_sanasi|date:"d.m.Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">
+          <div class="empty">
+            <div class="empty-icon"><svg class="icon"><use href="#i-list"/></svg></div>
+            <div class="empty-title">Hozircha murojaatlar yo‘q</div>
+            <p class="empty-desc">Yangi murojaatlar shu yerda ko‘rinadi.</p>
+            {% if can_edit %}
+            <a href="{% url 'murojaat_create' %}" class="btn btn-primary mt-2">
+              <svg class="icon icon-sm"><use href="#i-plus"/></svg>
+              Birinchi murojaatni qo‘shing
+            </a>
+            {% endif %}
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ oylik_stat|json_script:"oylik-stat-data" }}
+<script>
+(function () {
+  function getData() {
+    var node = document.getElementById('oylik-stat-data');
+    try { return JSON.parse(node.textContent); } catch (e) { return []; }
+  }
+
+  var chart;
+  function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+
+  function build() {
+    if (typeof Chart === 'undefined') { setTimeout(build, 60); return; }
+    var ctx = document.getElementById('js-bar');
+    if (!ctx) return;
+    var data = getData();
+    var stroke = isDark() ? '#4ea886' : '#1f5841';
+    var fill   = isDark() ? 'rgba(78,168,134,.18)' : 'rgba(31,88,65,.10)';
+    var grid   = isDark() ? 'rgba(255,255,255,.05)' : 'rgba(20,19,12,.05)';
+    var label  = isDark() ? '#6e6f64' : '#8e9088';
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(function (d) { return d.oy; }),
+        datasets: [{
+          label: 'Murojaatlar',
+          data:  data.map(function (d) { return d.son; }),
+          backgroundColor: fill,
+          borderColor:     stroke,
+          borderWidth:     1.5,
+          borderRadius:    4,
+          borderSkipped:   false,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 500 },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: isDark() ? '#1a1b14' : '#16170f',
+            titleColor: '#fff',
+            bodyColor:  '#ebe9e0',
+            padding: 10, cornerRadius: 6,
+            displayColors: false,
+          },
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1, color: label, font: { size: 11 } }, grid: { color: grid, drawTicks: false } },
+          x: { ticks: { color: label, font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', build);
+
+  var orig = window.toggleTheme;
+  window.toggleTheme = function () { if (orig) orig(); setTimeout(build, 50); };
+})();
+</script>
+{% endblock %}

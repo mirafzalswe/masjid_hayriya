@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}Yordamni o‘chirish{% endblock %}
+{% block page_title %}O‘chirishni tasdiqlash{% endblock %}
+
+{% block content %}
+<div class="form-narrow-sm">
+  <div class="card tone-danger">
+    <div class="card-head">
+      <div class="card-title">
+        <svg class="icon"><use href="#i-alert"/></svg>
+        Yordam yozuvini o‘chirish
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="cell-soft fs-13 mb-3">Quyidagi yordam yozuvi o‘chiriladi:</p>
+
+      <div class="onboard mb-3">
+        <div class="kv"><span class="kv-key">Bergan</span><span class="kv-val">{{ yordam.bergan_fio }}</span></div>
+        <div class="kv"><span class="kv-key">Olgan</span><span class="kv-val">{{ yordam.shaxs.fio }}</span></div>
+        <div class="kv"><span class="kv-key">Turi</span><span class="kv-val">{{ yordam.get_turi_display|strip_emoji }}</span></div>
+        {% if yordam.miqdor %}
+        <div class="kv"><span class="kv-key">Miqdor</span><span class="kv-val tabular">{{ yordam.miqdor|floatformat:0 }} so‘m</span></div>
+        {% endif %}
+        <div class="kv"><span class="kv-key">Sana</span><span class="kv-val tabular">{{ yordam.sana|date:"d.m.Y" }}</span></div>
+      </div>
+
+      <div class="callout-warn mb-4">Bu amalni qaytarib bo‘lmaydi.</div>
+
+      <div class="row gap-2">
+        <a href="{% url 'shaxs_detail' yordam.shaxs.pk %}" class="btn btn-secondary btn-block flex-1">Bekor qilish</a>
+        <form method="post" class="flex-1">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-lg btn-block">
+            <svg class="icon icon-sm"><use href="#i-trash"/></svg>
+            O‘chirish
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

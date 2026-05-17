@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}O‘chirish{% endblock %}
+{% block page_title %}O‘chirishni tasdiqlash{% endblock %}
+
+{% block content %}
+<div class="form-narrow-sm">
+  <div class="card tone-danger">
+    <div class="card-head">
+      <div class="card-title">
+        <svg class="icon"><use href="#i-alert"/></svg>
+        O‘chirishni tasdiqlang
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="cell-soft fs-13 mb-3">Quyidagi murojaat butunlay o‘chiriladi:</p>
+
+      <div class="onboard mb-3">
+        <div class="kv"><span class="kv-key">Shaxs</span><span class="kv-val">{{ murojaat.shaxs.fio }}</span></div>
+        <div class="kv"><span class="kv-key">Muhtojlik</span><span class="kv-val">{{ murojaat.get_muhtojlik_turi_display|strip_emoji }}</span></div>
+        <div class="kv"><span class="kv-key">Sana</span><span class="kv-val tabular">{{ murojaat.murojaat_sanasi|date:"d.m.Y" }}</span></div>
+      </div>
+
+      <div class="callout-warn mb-4">Bu amalni qaytarib bo‘lmaydi.</div>
+
+      <div class="row gap-2">
+        <a href="{% url 'murojaat_detail' murojaat.pk %}" class="btn btn-secondary btn-block flex-1">Bekor qilish</a>
+        <form method="post" class="flex-1">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-lg btn-block">
+            <svg class="icon icon-sm"><use href="#i-trash"/></svg>
+            O‘chirish
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
