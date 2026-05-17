@@ -1639,3 +1639,37 @@ textarea.form-input { resize: vertical; min-height: 92px; line-height: 1.5; }
   color: var(--text);
 }
 .callout-info strong { color: var(--accent); }
+
+/* ----------------------------------------------------------------
+   23. MOBILE — ulgaytirilgan moslama (<= 540px)
+---------------------------------------------------------------- */
+@media (max-width: 540px) {
+  /* Login: dekorativ chap panel kichik ekranlarda joy egallamasin */
+  .login-page { grid-template-rows: auto 1fr; }
+  .login-left { min-height: 140px; padding: var(--sp-5) var(--sp-4); }
+  .login-left .login-quote { display: none; }
+  .login-left .login-tag { font-size: var(--fs-13); }
+  .login-right { padding: var(--sp-5) var(--sp-4); }
+  .login-box { max-width: 100%; }
+
+  /* Timeline: sana yangi qatorga */
+  .timeline-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .timeline-meta { white-space: normal; }
+  .timeline-title { font-size: var(--fs-13); }
+  .timeline-item { padding: var(--sp-3); }
+
+  /* Page-head bo'shliqlari */
+  .page-head .actions { width: 100%; flex-wrap: wrap; }
+  .page-head .actions .btn { flex: 1 1 auto; }
+
+  /* Form aktion tugmalari to'liq kenglikda */
+  .form-narrow, .form-narrow-md, .form-narrow-sm { padding: 0; }
+}
+
+@media (max-width: 380px) {
+  /* Juda kichik telefonlar uchun */
+  .topbar { padding: 0 var(--sp-3); }
+  .stat { padding: 12px 10px; }
+  .stat-num { font-size: var(--fs-20); }
+  .badge { padding: 2px 6px; font-size: var(--fs-11); }
+}

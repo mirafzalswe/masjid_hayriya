@@ -1,0 +1,44 @@
+# /etc/systemd/system/masjid-web.service
+#
+# Django web (Gunicorn). 127.0.0.1:8000 — Nginx orqali ochiq.
+#
+# systemctl daemon-reload
+# systemctl enable --now masjid-web
+# systemctl status masjid-web
+# journalctl -u masjid-web -f
+
+[Unit]
+Description=Masjid Xayriya — Django (Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/masjid_hayria
+EnvironmentFile=/opt/masjid_hayria/.env
+Environment=HOME=/tmp
+
+ExecStart=/opt/masjid_hayria/.venv/bin/gunicorn \
+    --bind 127.0.0.1:8000 \
+    --workers 3 \
+    --timeout 60 \
+    --access-logfile - \
+    --error-logfile - \
+    masjid_hayria.wsgi:application
+
+Restart=on-failure
+RestartSec=5
+
+# Logni journald'ga
+StandardOutput=journal
+StandardError=journal
+
+# Xavfsizlik
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

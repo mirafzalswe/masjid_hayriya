@@ -42,10 +42,8 @@ if not SECRET_KEY:
             "SECRET_KEY is required when DEBUG=False. "
             "Set the SECRET_KEY environment variable."
         )
-ALLOWED_HOSTS= ['*']
-# ALLOWED_HOSTS = _env_csv('ALLOWED_HOSTS', ['localhost', '127.0.0.1'] if DEBUG else [])
+ALLOWED_HOSTS = _env_csv('ALLOWED_HOSTS', ['localhost', '127.0.0.1'] if DEBUG else [])
 CSRF_TRUSTED_ORIGINS = _env_csv('CSRF_TRUSTED_ORIGINS', [])
-ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
 
 
 # ─── Apps / middleware ─────────────────────────────────────────────────────────

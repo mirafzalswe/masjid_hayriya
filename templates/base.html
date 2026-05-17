@@ -6,9 +6,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#fafaf7">
+  <meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14140f" media="(prefers-color-scheme: dark)">
   <title>{% block title %}Murojaat{% endblock %} — Masjid Xayriya</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=9">
+  {# FOUC-fix: apply theme BEFORE stylesheet loads #}
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mxTheme') ||
+                (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=10">
   {% block extra_css %}{% endblock %}
 </head>
 <body>

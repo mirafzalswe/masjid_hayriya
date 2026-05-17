@@ -48,13 +48,6 @@ def _shared_context(request) -> dict[str, Any]:
 
 # ─── Auth ──────────────────────────────────────────────────────────────────────
 
-DEMO_ACCOUNTS = [
-    ('admin',  'admin',  "👑 To'liq huquq"),
-    ('hodim',  'hodim',  "🕌 Tahrirlash"),
-    ('viewer', 'viewer', "👁 Faqat ko'rish"),
-]
-
-
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -65,7 +58,6 @@ def login_view(request):
         return redirect(next_url)
     return render(request, 'auth/login.html', {
         'form': form,
-        'demo_accounts': DEMO_ACCOUNTS,
     })
 
 

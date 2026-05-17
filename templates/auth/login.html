@@ -5,8 +5,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14140f" media="(prefers-color-scheme: dark)">
   <title>Kirish — Masjid Xayriya</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=7">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mxTheme') ||
+                (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=10">
 </head>
 <body>
 
@@ -68,18 +79,6 @@
         </div>
         <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Kirish</button>
       </form>
-
-      <div class="demo-section">
-        <div class="demo-title">Demo hisoblar</div>
-        <div class="demo-list">
-          {% for username, password, label in demo_accounts %}
-          <button type="button" class="demo-row" data-user="{{ username }}" data-pass="{{ password }}">
-            <span class="demo-id">{{ username }} / {{ password }}</span>
-            <span class="demo-tag">{{ label }}</span>
-          </button>
-          {% endfor %}
-        </div>
-      </div>
     </div>
   </div>
 
@@ -112,23 +111,14 @@
       applyTheme(cur === 'dark' ? 'light' : 'dark');
     });
 
-    var u = document.getElementById('id_username');
     var p = document.getElementById('id_password');
-
     var eye = document.getElementById('js-eye');
     var eyeIcon = document.getElementById('js-eye-icon');
     if (eye && p && eyeIcon) eye.addEventListener('click', function () {
       var show = p.type === 'password';
       p.type = show ? 'text' : 'password';
-      var u = eyeIcon.querySelector('use');
-      if (u) u.setAttribute('href', show ? '#i-eye-off' : '#i-eye');
-    });
-
-    document.querySelectorAll('.demo-row').forEach(function (b) {
-      b.addEventListener('click', function () {
-        if (u) u.value = b.dataset.user || '';
-        if (p) p.value = b.dataset.pass || '';
-      });
+      var use = eyeIcon.querySelector('use');
+      if (use) use.setAttribute('href', show ? '#i-eye-off' : '#i-eye');
     });
   });
 })();

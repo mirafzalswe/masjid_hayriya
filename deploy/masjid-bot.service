@@ -1,0 +1,36 @@
+# /etc/systemd/system/masjid-bot.service
+#
+# Telegram bot (aiogram, polling). Tashqi port kerak emas.
+#
+# systemctl daemon-reload
+# systemctl enable --now masjid-bot
+# systemctl status masjid-bot
+# journalctl -u masjid-bot -f
+
+[Unit]
+Description=Masjid Xayriya — Telegram bot (polling)
+After=network-online.target masjid-web.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/masjid_hayria
+EnvironmentFile=/opt/masjid_hayria/.env
+
+ExecStart=/opt/masjid_hayria/.venv/bin/python -m bot.polling
+
+Restart=on-failure
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
